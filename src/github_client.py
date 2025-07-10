@@ -104,10 +104,60 @@ class GitHubClient:
             data = await self._make_request("GET", "search/users", params)
             users = data.get("items", [])
             app_logger.info(f"Found {len(users)} users")
-            return users
+            
+            # 并行获取每个用户的详细信息（包含完整统计数据）
+            detailed_users = await self._get_users_details_parallel(users)
+            return detailed_users
         except Exception as e:
             app_logger.error(f"Error searching users: {str(e)}")
             raise
+
+    async def get_user_info(self, username: str) -> Dict:
+        """获取特定用户的详细信息"""
+        endpoint = f"users/{username}"
+        app_logger.debug(f"Getting user info for: {username}")
+        
+        try:
+            data = await self._make_request("GET", endpoint)
+            return data
+        except Exception as e:
+            app_logger.error(f"Error getting user info: {str(e)}")
+            raise
+
+    async def _get_user_details_safe(self, user: Dict) -> Dict:
+        """安全获取单个用户详细信息"""
+        try:
+            detailed_user = await self.get_user_info(user['login'])
+            return detailed_user
+        except Exception as e:
+            app_logger.warning(f"Failed to get details for user {user['login']}: {str(e)}")
+            # 如果获取详细信息失败，使用基本信息
+            return user
+
+    async def _get_users_details_parallel(self, users: List[Dict]) -> List[Dict]:
+        """并行获取多个用户的详细信息"""
+        if not users:
+            return []
+        
+        app_logger.info(f"并行获取 {len(users)} 个用户的详细信息")
+        
+        # 使用 asyncio.gather 并行处理，但限制并发数量避免触发rate limit
+        semaphore = asyncio.Semaphore(5)  # 最多同时5个请求
+        
+        async def limited_get_details(user):
+            async with semaphore:
+                return await self._get_user_details_safe(user)
+        
+        try:
+            detailed_users = await asyncio.gather(
+                *[limited_get_details(user) for user in users],
+                return_exceptions=False
+            )
+            return detailed_users
+        except Exception as e:
+            app_logger.error(f"Error in parallel user details fetch: {str(e)}")
+            # 如果并行获取失败，返回基本信息
+            return users
     
 
     async def get_api_info(self) -> Dict:
