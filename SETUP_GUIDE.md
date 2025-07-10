@@ -7,7 +7,7 @@
 - **Python**: 3.8 或更高版本
 - **操作系统**: Windows 10+, macOS 10.14+, Linux
 - **网络**: 稳定的互联网连接
-- **账户**: GitHub 账户（用于获取 API Token）
+- **账户**: GitHub 和 DeepSeek 账户（用于获取 API Token）
 
 ## 🚀 快速安装
 
@@ -52,8 +52,6 @@ GITHUB_TOKEN=your_github_token_here
 
 # Deepseek AI API Key（必需）
 DEEPSEEK_API_KEY=your_deepseek_api_key_here
-
-# Deepseek AI API URL（可选，使用默认值）
 DEEPSEEK_API_URL=https://api.deepseek.com/chat/completions
 
 # 可选配置
