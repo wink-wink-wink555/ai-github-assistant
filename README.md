@@ -5,7 +5,7 @@
 [![License](https://img.shields.io/badge/License-MIT-green)](LICENSE)
 [![GitHub stars](https://img.shields.io/github/stars/wink-wink-wink555/ai-github-assistant?style=social)](https://github.com/wink-wink-wink555/ai-github-assistant)
 
-> 🚀 **基于FastMCP框架的现代化GitHub智能助手** - 装饰器驱动的MCP工具开发，体验前所未有的简洁和高效！
+*🚀 **基于FastMCP框架的现代化GitHub智能助手** - 装饰器驱动的MCP工具开发，体验前所未有的简洁和高效！*
 
 ---
 
