@@ -148,7 +148,7 @@ python main_search.py
 
 ### 在 Cline 中演示
 ![cline演示界面](screenshots/5.png)
-*AI智能助手 - 搜索和机器学习，Python 相关的热门项目*
+*Cline 中的 AI智能助手 - 搜索和机器学习，Python 相关的热门项目*
 
 ## 🛠️ 功能特性
 
