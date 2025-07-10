@@ -7,7 +7,7 @@
 [![FastAPI](https://img.shields.io/badge/FastAPI-0.104+-green.svg)](https://fastapi.tiangolo.com/)
 [![GitHub stars](https://img.shields.io/github/stars/wink-wink-wink555/ai-github-assistant?style=social)](https://github.com/wink-wink-wink555/ai-github-assistant)
 
-一个基于 Deepseek AI 和 MCP 协议的智能 GitHub 助手，支持自然语言查询 GitHub 仓库信息。
+*一个基于 Deepseek AI 和 MCP 协议的智能 GitHub 助手，支持自然语言查询 GitHub 仓库信息。*
 
 [🚀 快速开始](#-快速开始) • [📚 使用指南](#-使用指南) • [🤝 贡献](#-贡献) • [📄 许可证](#-许可证)
 
