@@ -1,0 +1,13 @@
+{
+  "mcpServers": {
+    "ai-github-assistant": {
+      "command": "D:/Pycharm/mcpFirst/venv/Scripts/python.exe",
+      "args": ["D:/Pycharm/mcpFirst/main_ai.py", "mcp"],
+      "env": {
+        "GITHUB_TOKEN": "你的GitHub令牌",
+        "DEEPSEEK_API_KEY": "你的Deepseek API密钥",
+        "PYTHONIOENCODING": "utf-8"
+      }
+    }
+  }
+}
