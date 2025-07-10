@@ -9,6 +9,8 @@
 
 一个基于 Deepseek AI 和 MCP 协议的智能 GitHub 助手，支持自然语言查询 GitHub 仓库信息。
 
+[🚀 快速开始](#-快速开始) • [📚 使用指南](#-使用指南) • [🤝 贡献](#-贡献) • [📄 许可证](#-许可证)
+
 </div>
 
 ## ✨ 功能特性
@@ -36,18 +38,18 @@
 ### AI 智能助手演示
 
 ![AI 智能助手界面 1](screenshots/1.png)
-*查询和RAG有关的Github项目*
+*AI智能助手 - 查询和RAG有关的Github项目*
 
 ![AI 智能助手界面 2](screenshots/2.png)
-*为大数据专业的学生推荐一些Github项目*
+*AI智能助手 - 为大数据专业的学生推荐一些Github项目*
 
 ### 普通搜索界面演示
 
 ![普通搜索界面 1](screenshots/3.png)
-*简洁的搜索表单界面*
+*简洁的搜索表单界面 - 搜索和YOLO、Python有关的Github相关，按星数排序*
 
 ![普通搜索界面 2](screenshots/4.png)
-*搜索结果展示页面*
+*搜索结果展示页面 - 展示和YOLO、Python有关的Github相关，按星数排序*
 
 ## 🏗️ 项目结构
 
