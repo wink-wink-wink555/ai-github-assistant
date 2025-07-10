@@ -1,8 +1,8 @@
 {
   "mcpServers": {
     "ai-github-assistant": {
-      "command": "D:/example/venv/Scripts/python.exe",
-      "args": ["D:/example/main_ai.py", "mcp"],
+      "command": "example/venv/Scripts/python.exe",
+      "args": ["example/main_ai.py", "mcp"],
       "env": {
         "GITHUB_TOKEN": "你的GitHub令牌",
         "DEEPSEEK_API_KEY": "你的Deepseek API密钥",
