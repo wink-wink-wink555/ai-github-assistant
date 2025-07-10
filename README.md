@@ -38,18 +38,18 @@
 ### AI 智能助手演示
 
 ![AI 智能助手界面 1](screenshots/1.png)
-*AI智能助手 - 查询和RAG有关的Github项目*
+*AI智能助手 - 查询和 RAG 有关的 Github 项目*
 
 ![AI 智能助手界面 2](screenshots/2.png)
-*AI智能助手 - 为大数据专业的学生推荐一些Github项目*
+*AI智能助手 - 为大数据专业的学生推荐一些 Github 项目*
 
 ### 普通搜索界面演示
 
 ![普通搜索界面 1](screenshots/3.png)
-*简洁的搜索表单界面 - 搜索和YOLO、Python有关的Github项目，按星数排序*
+*简洁的搜索表单界面 - 搜索和 YOLO, Python 有关的 Github 项目，按星数排序*
 
 ![普通搜索界面 2](screenshots/4.png)
-*搜索结果展示页面 - 展示和YOLO、Python有关的Github项目，按星数排序*
+*搜索结果展示页面 - 展示和 YOLO, Python 有关的 Github 项目，按星数排序*
 
 ## 🏗️ 项目结构
 
