@@ -121,7 +121,7 @@ FastMCP GitHub助手提供以下4个工具：
 
 ```bash
 # 启动FastMCP服务器
-python fastmcp_github_assistant.py
+python main_ai.py mcp
 ```
 
 输出示例：
@@ -140,7 +140,7 @@ python fastmcp_github_assistant.py
 
 ```bash
 # 启动Web演示（用于查看工具定义）
-python fastmcp_github_assistant.py web
+python main_ai.py
 ```
 
 访问: http://localhost:3000
@@ -160,7 +160,7 @@ python fastmcp_github_assistant.py web
   "mcpServers": {
     "fastmcp-github-assistant": {
       "command": "python",
-      "args": ["C:/path/to/your/project/fastmcp_github_assistant.py"],
+      "args": ["C:/path/to/your/project/main_ai.py"],
       "env": {
         "GITHUB_TOKEN": "your_github_token_here"
       }
@@ -172,6 +172,193 @@ python fastmcp_github_assistant.py web
 ### 3. 重启Claude Desktop
 
 配置完成后重启Claude Desktop，即可在对话中使用GitHub搜索功能。
+
+## 💻 连接VS Code Cline
+
+VS Code的Cline扩展也支持MCP协议，可以直接连接FastMCP服务器。
+
+### 1. 安装Cline扩展
+
+在VS Code扩展商店搜索并安装"Cline"扩展。
+
+### 2. 配置MCP服务器
+
+#### 方法一：通过Cline界面配置（推荐）
+
+1. 在VS Code中打开Cline扩展面板
+2. 点击右上角的**齿轮图标** ⚙️ 或**三点菜单** ⋮
+3. 选择 **"MCP Servers"**
+4. 点击 **"Installed"** 标签页
+5. 点击 **"Configure MCP Servers"** 按钮
+6. 在打开的JSON配置文件中添加以下内容：
+
+```json
+{
+  "mcpServers": {
+    "ai-github-assistant": {
+      "command": "Your/Project/Path/venv/Scripts/python.exe",
+      "args": ["Your/Project/Path/main_ai.py", "mcp"],
+      "env": {
+        "GITHUB_TOKEN": "你的GitHub令牌",
+        "DEEPSEEK_API_KEY": "你的Deepseek API密钥",
+        "PYTHONIOENCODING": "utf-8"
+      }
+    }
+  }
+}
+```
+
+#### 方法二：直接编辑配置文件
+
+**Windows配置文件位置：**
+```
+%APPDATA%\Code\User\globalStorage\rooveterinaryinc.roo-cline\settings\cline_mcp_settings.json
+```
+
+**配置内容：**
+```json
+{
+  "mcpServers": {
+    "ai-github-assistant": {
+      "command": "Your/Project/Path/venv/Scripts/python.exe",
+      "args": ["Your/Project/Path/main_ai.py", "mcp"],
+      "env": {
+        "GITHUB_TOKEN": "ghp_your_github_token_here",
+        "DEEPSEEK_API_KEY": "sk-your_deepseek_key_here",
+        "PYTHONIOENCODING": "utf-8"
+      }
+    }
+  }
+}
+```
+
+### 3. 重要配置说明
+
+#### 使用虚拟环境Python路径
+- ✅ **正确**: `D:/Project/venv/Scripts/python.exe`
+- ❌ **错误**: `python` (系统Python可能没有安装FastMCP)
+
+#### 环境变量配置
+- `GITHUB_TOKEN`: GitHub个人访问令牌
+- `DEEPSEEK_API_KEY`: Deepseek AI API密钥（可选）
+- `PYTHONIOENCODING`: 确保UTF-8编码，避免emoji显示问题
+
+#### 启动参数
+- `main_ai.py`: 主程序文件
+- `mcp`: 启动参数，告诉程序以MCP服务器模式运行
+
+### 4. 启动和验证
+
+1. **保存配置文件** (Ctrl + S)
+2. **重启MCP服务器**：
+   - 在Cline的"Installed"标签页找到服务器
+   - 点击 **"Restart Server"** 按钮
+3. **检查连接状态**：
+   - 🟢 **绿点** = 连接成功
+   - 🟡 **黄点** = 正在连接
+   - 🔴 **红点** = 连接失败
+
+### 5. 验证工具可用性
+
+展开服务器设置，在**"Tools & Resources"**部分应该能看到：
+
+✅ `search_github_repositories` - 搜索GitHub仓库  
+✅ `get_repository_details` - 获取仓库详情  
+✅ `search_github_users` - 搜索GitHub用户  
+✅ `get_trending_repositories` - 获取热门趋势
+
+### 6. 使用示例
+
+在Cline对话框中输入自然语言请求：
+
+```
+帮我搜索一些Python Web框架项目
+```
+
+```
+查看microsoft/vscode仓库的详细信息
+```
+
+```
+找找最近热门的JavaScript项目
+```
+
+Cline会自动调用对应的FastMCP工具来执行请求。
+
+### 7. 故障排除
+
+#### 问题1：ModuleNotFoundError: No module named 'fastmcp'
+**原因**: 使用了系统Python而不是虚拟环境Python  
+**解决**: 修改配置中的`command`为虚拟环境的完整路径
+
+#### 问题2：PermissionError 访问日志目录
+**原因**: 日志系统尝试在无权限的目录创建文件  
+**解决**: 已在代码中修复，使用项目logs目录
+
+#### 问题3：UnicodeEncodeError emoji编码错误
+**原因**: Windows命令行默认GBK编码  
+**解决**: 
+- 已移除print语句中的emoji字符
+- 添加`"PYTHONIOENCODING": "utf-8"`环境变量
+
+#### 问题4：连接失败（红点状态）
+**检查项目**:
+1. 确认Python路径正确：`python --version`
+2. 确认项目路径正确：文件是否存在
+3. 确认API密钥有效：GitHub token权限
+4. 查看错误日志：展开服务器设置查看详细错误
+
+#### 问题5：手动测试服务器
+在项目目录的终端中运行：
+```bash
+# 激活虚拟环境
+venv\Scripts\activate
+
+# 测试服务器启动
+python main_ai.py mcp
+```
+
+期望看到：
+```
+[MCP] 启动FastMCP GitHub助手MCP服务器...
+[OK] 配置验证通过
+[TOOLS] 已注册MCP工具:
+   - search_github_repositories
+   - get_repository_details
+   - search_github_users
+   - get_trending_repositories
+[READY] 等待AI连接...
+```
+
+### 8. 高级配置
+
+#### 自定义超时设置
+```json
+{
+  "mcpServers": {
+    "ai-github-assistant": {
+      "command": "...",
+      "args": ["..."],
+      "env": { "..." },
+      "timeout": 60
+    }
+  }
+}
+```
+
+#### 自动批准工具（谨慎使用）
+```json
+{
+  "mcpServers": {
+    "ai-github-assistant": {
+      "command": "...",
+      "args": ["..."],
+      "env": { "..." },
+      "autoApprove": ["search_github_repositories"]
+    }
+  }
+}
+```
 
 ## 🔄 FastMCP工作流程
 
@@ -295,7 +482,7 @@ curl -H "Authorization: token YOUR_TOKEN" https://api.github.com/user
 
 ### 自定义工具
 
-可以在 `fastmcp_github_assistant.py` 中添加新的工具：
+可以在 `main_ai.py` 或 `src/server.py` 中添加新的工具：
 
 ```python
 @mcp.tool()
