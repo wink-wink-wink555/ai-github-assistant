@@ -526,4 +526,4 @@ async def async_tool(query: str) -> str:
 
 ---
 
-💡 **提示**: 有问题？查看 [Issues](https://github.com/wink-wink-wink555/mcpFirst/issues) 或创建新的issue！ 
+💡 **提示**: 有问题？查看 [Issues](https://github.com/wink-wink-wink555/ai-github-assistant/issues) 或创建新的issue！ 
