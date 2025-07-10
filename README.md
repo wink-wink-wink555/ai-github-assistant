@@ -133,10 +133,10 @@ python main_search.py
 ### AI 智能助手演示
 
 ![AI 智能助手界面 1](screenshots/1.png)
-*AI智能助手 - 查询和 RAG 有关的 Github 项目*
+*AI智能助手 - 查看最近一周热门的 Github 项目*
 
 ![AI 智能助手界面 2](screenshots/2.png)
-*AI智能助手 - 为大数据专业的学生推荐一些 Github 项目*
+*AI智能助手 - 为大数据专业的学生推荐 Github 项目*
 
 ### 普通搜索界面演示
 
