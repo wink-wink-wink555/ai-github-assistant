@@ -46,10 +46,10 @@
 ### 普通搜索界面演示
 
 ![普通搜索界面 1](screenshots/3.png)
-*简洁的搜索表单界面 - 搜索和YOLO、Python有关的Github相关，按星数排序*
+*简洁的搜索表单界面 - 搜索和YOLO、Python有关的Github项目，按星数排序*
 
 ![普通搜索界面 2](screenshots/4.png)
-*搜索结果展示页面 - 展示和YOLO、Python有关的Github相关，按星数排序*
+*搜索结果展示页面 - 展示和YOLO、Python有关的Github项目，按星数排序*
 
 ## 🏗️ 项目结构
 
