@@ -146,6 +146,10 @@ python main_search.py
 ![普通搜索界面 2](screenshots/4.png)
 *搜索结果展示页面 - 展示和 YOLO，Python 有关的 Github 项目，按星数排序*
 
+### 在 Cline 中演示
+![cline演示界面](screenshots/5.png)
+*AI智能助手 - 搜索和Python机器学习相关的热门项目*
+
 ## 🛠️ 功能特性
 
 本项目基于FastMCP实现了4个强大的GitHub工具：
