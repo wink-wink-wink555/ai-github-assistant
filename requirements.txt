@@ -1,5 +1,5 @@
-# MCP framework core dependencies
-mcp>=1.0.0
+# FastMCP framework
+fastmcp>=0.9.0
 
 # GitHub API client
 PyGithub>=2.3.0
