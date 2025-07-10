@@ -13,7 +13,6 @@ from fastapi import FastAPI, Form
 from fastapi.responses import HTMLResponse
 import uvicorn
 import aiohttp
-import asyncio
 from typing import Optional
 
 # 添加src目录到Python路径
@@ -1072,8 +1071,8 @@ def get_web_interface():
                         </div>
                         <h3>💡 试试这些问题：</h3>
                         <div class="examples-grid">
-                            <div class="example-item" onclick="askExample('搜索人脸识别相关的Python项目')">
-                                🔍 搜索人脸识别项目
+                            <div class="example-item" onclick="askExample('查看最近热门的项目')">
+                                🔥 查看近期热门项目
                             </div>
                             <div class="example-item" onclick="askExample('找一些机器学习库')">
                                 🤖 查找机器学习库
@@ -1264,46 +1263,46 @@ def main():
     
     if len(sys.argv) > 1 and sys.argv[1] == "mcp":
         # 启动MCP服务器模式
-        print("🚀 启动FastMCP GitHub助手MCP服务器...")
+        print("[MCP] 启动FastMCP GitHub助手MCP服务器...")
         
         # 验证配置
         if not config.validate():
-            print("❌ 配置验证失败")
-            print("📋 请确保环境变量包含:")
+            print("[ERROR] 配置验证失败")
+            print("[INFO] 请确保环境变量包含:")
             print("   - GITHUB_TOKEN=your_github_token")
             return
             
-        print("✅ 配置验证通过")
-        print("🔧 已注册MCP工具:")
+        print("[OK] 配置验证通过")
+        print("[TOOLS] 已注册MCP工具:")
         print("   - search_github_repositories")
         print("   - get_repository_details") 
         print("   - search_github_users")
         print("   - get_trending_repositories")
-        print("⏰ 等待AI连接...")
+        print("[READY] 等待AI连接...")
         
         # 启动FastMCP服务器
         mcp.run()
     else:
         # 默认启动Web AI对话界面
-        print("🌐 启动FastMCP GitHub助手AI对话界面...")
-        print("🤖 集成Deepseek AI + FastMCP工具")
+        print("[WEB] 启动FastMCP GitHub助手AI对话界面...")
+        print("[AI] 集成Deepseek AI + FastMCP工具")
         
         # 验证配置
         if not config.validate():
-            print("❌ 配置验证失败，请检查环境变量设置")
-            print("📋 请确保 .env 文件包含以下必要配置：")
+            print("[ERROR] 配置验证失败，请检查环境变量设置")
+            print("[INFO] 请确保 .env 文件包含以下必要配置：")
             print("   - GITHUB_TOKEN=your_github_token")
             print("   - DEEPSEEK_API_KEY=your_deepseek_api_key")
             return
         
-        print("✅ 配置验证通过")
-        print("🔧 FastMCP工具已注册:")
+        print("[OK] 配置验证通过")
+        print("[TOOLS] FastMCP工具已注册:")
         print("   - @mcp.tool() search_github_repositories")
         print("   - @mcp.tool() get_repository_details")
         print("   - @mcp.tool() search_github_users")  
         print("   - @mcp.tool() get_trending_repositories")
-        print("🔗 访问地址: http://localhost:3000")
-        print("🛠️  基于FastMCP框架 + Deepseek AI智能对话")
+        print("[URL] 访问地址: http://localhost:3000")
+        print("[INFO] 基于FastMCP框架 + Deepseek AI智能对话")
         print()
         
         uvicorn.run(app, host="localhost", port=3000)
