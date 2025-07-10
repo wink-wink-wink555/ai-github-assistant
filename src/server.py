@@ -1,287 +1,245 @@
 """
-GitHub Search MCP Server
-基于Model Context Protocol的GitHub仓库搜索服务器
+GitHub Search FastMCP Server
+基于FastMCP框架的GitHub仓库搜索服务器
+使用装饰器方式注册MCP工具
 """
 
 import asyncio
-import json
 import sys
 import os
-from typing import Any, Dict, List, Optional
+from typing import Optional
 
 # 添加父目录到Python路径，以便导入src模块
 current_dir = os.path.dirname(os.path.abspath(__file__))
 parent_dir = os.path.dirname(current_dir)
 sys.path.insert(0, parent_dir)
 
-from mcp.server import Server
-from mcp.types import Resource, Tool, TextContent
-
+from fastmcp import FastMCP
 from src.config import config
 from src.utils.logger import app_logger
 from src.github_client import GitHubClient
 
-class GitHubSearchMCPServer:
-    """GitHub搜索MCP服务器类"""
+# 创建FastMCP实例
+mcp = FastMCP("GitHub搜索助手")
+
+# 创建GitHub客户端实例
+github_client = GitHubClient()
+
+@mcp.tool()
+def search_repositories(query: str, language: Optional[str] = None, 
+                       sort: str = "stars", per_page: int = 10) -> str:
+    """搜索GitHub仓库工具
     
-    def __init__(self):
-        self.server = Server(config.MCP_SERVER_NAME)
-        self.github_client = GitHubClient()
-        app_logger.info("Initializing GitHub Search MCP Server")
-        self._setup_handlers()
+    根据关键词、编程语言等条件搜索GitHub仓库，返回热门匹配结果。
+    
+    Args:
+        query: 搜索关键词（建议使用英文）,如 'python web framework', 'machine learning'
+        language: 可选的编程语言筛选（如python, javascript, java等）
+        sort: 排序方式，可选值：stars（按星数）、forks（按分叉数）、updated（按更新时间）
+        per_page: 返回结果数量（1-20之间）
+    
+    Returns:
+        格式化的仓库搜索结果文本
+    """
+    try:
+        app_logger.info(f"搜索仓库: query={query}, language={language}, sort={sort}")
         
-    def _setup_handlers(self):
-        """设置MCP处理器"""
+        # 这里使用同步调用，因为FastMCP工具函数需要同步
+        # 在实际应用中，您需要使用asyncio.run或其他方式处理异步调用
+        import asyncio
+        loop = asyncio.new_event_loop()
+        asyncio.set_event_loop(loop)
         
-        @self.server.list_tools()
-        async def list_tools() -> List[Tool]:
-            """列出所有可用的工具"""
-            return [
-                Tool(
-                    name="search_repositories",
-                    description="Search GitHub repositories by keywords, language, and other filters",
-                    inputSchema={
-                        "type": "object",
-                        "properties": {
-                            "query": {
-                                "type": "string",
-                                "description": "Search keywords for repositories"
-                            },
-                            "language": {
-                                "type": "string",
-                                "description": "Programming language filter (optional)"
-                            },
-                            "sort": {
-                                "type": "string",
-                                "enum": ["stars", "forks", "updated"],
-                                "description": "Sort criteria (optional)",
-                                "default": "stars"
-                            },
-                            "per_page": {
-                                "type": "integer",
-                                "minimum": 1,
-                                "maximum": 30,
-                                "description": "Number of results (optional)",
-                                "default": 10
-                            }
-                        },
-                        "required": ["query"]
-                    }
-                ),
-                Tool(
-                    name="get_repository_info",
-                    description="Get detailed information about a specific GitHub repository",
-                    inputSchema={
-                        "type": "object",
-                        "properties": {
-                            "owner": {
-                                "type": "string",
-                                "description": "Repository owner/organization name"
-                            },
-                            "repo": {
-                                "type": "string",
-                                "description": "Repository name"
-                            }
-                        },
-                        "required": ["owner", "repo"]
-                    }
-                ),
-                Tool(
-                    name="search_users",
-                    description="Search GitHub users and organizations",
-                    inputSchema={
-                        "type": "object",
-                        "properties": {
-                            "query": {
-                                "type": "string",
-                                "description": "Search keywords for users"
-                            },
-                            "type": {
-                                "type": "string",
-                                "enum": ["user", "org"],
-                                "description": "Account type filter (optional)"
-                            }
-                        },
-                        "required": ["query"]
-                    }
+        try:
+            repositories = loop.run_until_complete(
+                github_client.search_repositories(
+                    query=query, language=language, sort=sort, per_page=per_page
                 )
-            ]
-        
-        @self.server.call_tool()
-        async def call_tool(name: str, arguments: Dict[str, Any]) -> List[TextContent]:
-            """调用工具"""
-            app_logger.info(f"Tool called: {name} with arguments: {arguments}")
-            
-            try:
-                if name == "search_repositories":
-                    return await self._search_repositories(**arguments)
-                elif name == "get_repository_info":
-                    return await self._get_repository_info(**arguments)
-                elif name == "search_users":
-                    return await self._search_users(**arguments)
-                else:
-                    return [TextContent(
-                        type="text",
-                        text=f"Unknown tool: {name}"
-                    )]
-            except Exception as e:
-                app_logger.error(f"Error calling tool {name}: {str(e)}")
-                return [TextContent(
-                    type="text",
-                    text=f"Error: {str(e)}"
-                )]
-    
-    async def _search_repositories(self, query: str, language: Optional[str] = None, 
-                                 sort: str = "stars", per_page: int = 10) -> List[TextContent]:
-        """搜索GitHub仓库"""
-        try:
-            repositories = await self.github_client.search_repositories(
-                query=query, language=language, sort=sort, per_page=per_page
             )
-            
-            if not repositories:
-                return [TextContent(
-                    type="text",
-                    text=f"No repositories found for query: {query}"
-                )]
-            
-            # 格式化结果
-            formatted_results = self._format_repository_results(repositories)
-            
-            return [TextContent(
-                type="text",
-                text=formatted_results
-            )]
-            
-        except Exception as e:
-            app_logger.error(f"Error searching repositories: {str(e)}")
-            return [TextContent(
-                type="text",
-                text=f"Error searching repositories: {str(e)}"
-            )]
-    
-    async def _get_repository_info(self, owner: str, repo: str) -> List[TextContent]:
-        """获取仓库详细信息"""
-        try:
-            repo_info = await self.github_client.get_repository_info(owner, repo)
-            formatted_info = self._format_repository_info(repo_info)
-            
-            return [TextContent(
-                type="text",
-                text=formatted_info
-            )]
-            
-        except Exception as e:
-            app_logger.error(f"Error getting repository info: {str(e)}")
-            return [TextContent(
-                type="text",
-                text=f"Error getting repository info: {str(e)}"
-            )]
-    
-    async def _search_users(self, query: str, type: Optional[str] = None) -> List[TextContent]:
-        """搜索用户"""
-        try:
-            users = await self.github_client.search_users(query=query, type=type)
-            
-            if not users:
-                return [TextContent(
-                    type="text",
-                    text=f"No users found for query: {query}"
-                )]
-            
-            formatted_users = self._format_user_results(users)
-            
-            return [TextContent(
-                type="text",
-                text=formatted_users
-            )]
-            
-        except Exception as e:
-            app_logger.error(f"Error searching users: {str(e)}")
-            return [TextContent(
-                type="text",
-                text=f"Error searching users: {str(e)}"
-            )]
-    
-    def _format_repository_results(self, repositories: List[Dict]) -> str:
-        """格式化仓库搜索结果"""
-        results = []
-        results.append(f"🔍 Found {len(repositories)} repositories:\n")
+        finally:
+            loop.close()
+        
+        if not repositories:
+            return f"未找到与查询 '{query}' 匹配的仓库"
+        
+        # 格式化结果
+        results = [f"🔍 找到 {len(repositories)} 个仓库:\n"]
         
         for i, repo in enumerate(repositories, 1):
             stars = repo.get('stargazers_count', 0)
             forks = repo.get('forks_count', 0)
-            language = repo.get('language', 'Unknown')
-            description = repo.get('description', 'No description')
+            language_info = repo.get('language', '未知')
+            description = repo.get('description', '无描述')
             
             results.append(
                 f"{i}. **{repo['full_name']}** ⭐ {stars:,}\n"
                 f"   📝 {description}\n"
-                f"   💻 {language} | 🍴 {forks:,} forks\n"
+                f"   💻 {language_info} | 🍴 {forks:,} 个分叉\n"
                 f"   🔗 {repo.get('html_url', '')}\n"
             )
         
         return "\n".join(results)
-    
-    def _format_repository_info(self, repo: Dict) -> str:
-        """格式化仓库详细信息"""
-        return f"""📦 **{repo['full_name']}**
+        
+    except Exception as e:
+        app_logger.error(f"搜索仓库时出错: {str(e)}")
+        return f"搜索仓库时出错: {str(e)}"
 
-📝 **Description:** {repo.get('description', 'No description')}
-⭐ **Stars:** {repo.get('stargazers_count', 0):,}
-🍴 **Forks:** {repo.get('forks_count', 0):,}
-👀 **Watchers:** {repo.get('watchers_count', 0):,}
-🐛 **Issues:** {repo.get('open_issues_count', 0):,}
-💻 **Language:** {repo.get('language', 'Unknown')}
-📦 **Size:** {repo.get('size', 0):,} KB
-📅 **Created:** {repo.get('created_at', 'Unknown')[:10]}
-📅 **Updated:** {repo.get('updated_at', 'Unknown')[:10]}
-🔗 **URL:** {repo.get('html_url', '')}
-
-📄 **License:** {repo.get('license', {}).get('name', 'No license') if repo.get('license') else 'No license'}
-🏠 **Homepage:** {repo.get('homepage', 'No homepage')}"""
+@mcp.tool()
+def get_repository_info(owner: str, repo: str) -> str:
+    """获取仓库详细信息工具
     
-    def _format_user_results(self, users: List[Dict]) -> str:
-        """格式化用户搜索结果"""
-        results = []
-        results.append(f"👥 Found {len(users)} users:\n")
+    获取指定GitHub仓库的详细信息，包括统计数据、描述、许可证等。
+    
+    Args:
+        owner: 仓库所有者/组织名称
+        repo: 仓库名称
+    
+    Returns:
+        格式化的仓库详细信息文本
+    """
+    try:
+        app_logger.info(f"获取仓库信息: {owner}/{repo}")
+        
+        # 处理异步调用
+        import asyncio
+        loop = asyncio.new_event_loop()
+        asyncio.set_event_loop(loop)
+        
+        try:
+            repo_info = loop.run_until_complete(
+                github_client.get_repository_info(owner, repo)
+            )
+        finally:
+            loop.close()
+        
+        return f"""📦 **{repo_info['full_name']}**
+
+📝 **描述:** {repo_info.get('description', '无描述')}
+⭐ **星标:** {repo_info.get('stargazers_count', 0):,}
+🍴 **分叉:** {repo_info.get('forks_count', 0):,}
+👀 **关注者:** {repo_info.get('watchers_count', 0):,}
+🐛 **议题:** {repo_info.get('open_issues_count', 0):,}
+💻 **主要语言:** {repo_info.get('language', '未知')}
+📦 **大小:** {repo_info.get('size', 0):,} KB
+📅 **创建时间:** {repo_info.get('created_at', '未知')[:10]}
+📅 **更新时间:** {repo_info.get('updated_at', '未知')[:10]}
+🔗 **链接:** {repo_info.get('html_url', '')}
+
+📄 **许可证:** {repo_info.get('license', {}).get('name', '无许可证') if repo_info.get('license') else '无许可证'}
+🏠 **主页:** {repo_info.get('homepage', '无主页')}"""
+        
+    except Exception as e:
+        app_logger.error(f"获取仓库信息时出错: {str(e)}")
+        return f"获取仓库信息时出错: {str(e)}"
+
+@mcp.tool()
+def search_users(query: str, user_type: Optional[str] = None) -> str:
+    """搜索GitHub用户工具
+    
+    搜索GitHub用户和组织账号。
+    
+    Args:
+        query: 用户名或组织名搜索关键词
+        user_type: 可选的账号类型筛选，可选值：user（用户）、org（组织）
+    
+    Returns:
+        格式化的用户搜索结果文本
+    """
+    try:
+        app_logger.info(f"搜索用户: query={query}, type={user_type}")
+        
+        # 处理异步调用
+        import asyncio
+        loop = asyncio.new_event_loop()
+        asyncio.set_event_loop(loop)
+        
+        try:
+            users = loop.run_until_complete(
+                github_client.search_users(query=query, type=user_type)
+            )
+        finally:
+            loop.close()
+        
+        if not users:
+            return f"未找到与查询 '{query}' 匹配的用户"
+        
+        # 格式化结果
+        results = [f"👥 找到 {len(users)} 个用户:\n"]
         
         for i, user in enumerate(users, 1):
-            user_type = "🏢 Organization" if user.get('type') == 'Organization' else "👤 User"
+            user_type_emoji = "👤" if user.get('type') == 'User' else "🏢"
             results.append(
-                f"{i}. **{user['login']}** ({user_type})\n"
+                f"{i}. {user_type_emoji} **{user['login']}**\n"
                 f"   🔗 {user.get('html_url', '')}\n"
+                f"   📊 公开仓库: {user.get('public_repos', 0)}\n"
+                f"   👥 关注者: {user.get('followers', 0)}\n"
             )
         
         return "\n".join(results)
-    
-    async def run(self):
-        """运行服务器"""
-        app_logger.info("Starting GitHub Search MCP Server")
         
-        try:
-            from mcp.server.stdio import stdio_server
-            async with stdio_server() as (read_stream, write_stream):
-                await self.server.run(
-                    read_stream, 
-                    write_stream,
-                    initialization_options={}
-                )
-        except Exception as e:
-            app_logger.error(f"Server run error: {e}")
-            raise
+    except Exception as e:
+        app_logger.error(f"搜索用户时出错: {str(e)}")
+        return f"搜索用户时出错: {str(e)}"
 
-async def main():
-    """主函数"""
-    server = GitHubSearchMCPServer()
-    await server.run()
+@mcp.tool()
+def get_trending_repositories(language: Optional[str] = None, since: str = "daily") -> str:
+    """获取热门趋势仓库工具
+    
+    获取GitHub上的热门趋势仓库。
+    
+    Args:
+        language: 可选的编程语言筛选
+        since: 时间范围，可选值：daily（每日）、weekly（每周）、monthly（每月）
+    
+    Returns:
+        格式化的热门仓库列表文本
+    """
+    try:
+        app_logger.info(f"获取热门仓库: language={language}, since={since}")
+        
+        # 构造搜索查询以获取热门仓库
+        # 使用创建时间和星标数作为热门度指标
+        if since == "daily":
+            query = "created:>=$(date -d '1 day ago' '+%Y-%m-%d')"
+        elif since == "weekly":
+            query = "created:>=$(date -d '1 week ago' '+%Y-%m-%d')"
+        else:  # monthly
+            query = "created:>=$(date -d '1 month ago' '+%Y-%m-%d')"
+        
+        # 使用现有的搜索功能
+        return search_repositories(
+            query=f"stars:>10 {query}",
+            language=language,
+            sort="stars",
+            per_page=10
+        )
+        
+    except Exception as e:
+        app_logger.error(f"获取热门仓库时出错: {str(e)}")
+        return f"获取热门仓库时出错: {str(e)}"
+
+def main():
+    """启动FastMCP服务器的主函数"""
+    app_logger.info("启动GitHub搜索FastMCP服务器...")
+    
+    # 验证配置
+    if not config.validate():
+        app_logger.error("配置验证失败，请检查环境变量设置")
+        print("❌ 配置验证失败，请检查环境变量设置")
+        print("📋 请确保 .env 文件包含以下必要配置：")
+        print("   - GITHUB_TOKEN=your_github_token")
+        return
+    
+    app_logger.info("配置验证通过")
+    print("✅ FastMCP GitHub搜索服务器已启动")
+    print("🔧 已注册的工具:")
+    print("   - search_repositories: 搜索GitHub仓库")
+    print("   - get_repository_info: 获取仓库详细信息")
+    print("   - search_users: 搜索GitHub用户")
+    print("   - get_trending_repositories: 获取热门趋势仓库")
+    
+    # 运行FastMCP服务器
+    mcp.run()
 
 if __name__ == "__main__":
-    try:
-        asyncio.run(main())
-    except KeyboardInterrupt:
-        app_logger.info("Server stopped by user")
-    except Exception as e:
-        app_logger.error(f"Server error: {e}")
-        import traceback
-        app_logger.error(f"Traceback: {traceback.format_exc()}") 
+    main() 
